@@ -15,10 +15,15 @@
       currentVideoBookmarks = currentVideoBookmarks.filter(
         (bookmark) => bookmark.time != value
       );
-      // chrome.storage.sync.set({
-      //   [currentVideo]: JSON.stringify(currentVideoBookmarks),
-      // });
-      // response(currentVideoBookmarks);
+      chrome.storage.sync.set({
+        [currentVideo]: JSON.stringify(currentVideoBookmarks),
+      });
+      response(currentVideoBookmarks);
+    } else if (type === "OPEN_YTP") {
+      const promt = window.confirm("Are you sure you want to open this video?");
+      if (promt) {
+        window.open(value, "_self");
+      }
     }
   });
 
@@ -35,6 +40,8 @@
       document.getElementsByClassName("bookmark-btn")[0];
 
     currentVideoBookmarks = await fetchBookmarks();
+    ytpLeftControls = document.getElementsByClassName("ytp-left-controls")[0];
+    ytpPlayer = document.getElementsByClassName("video-stream")[0];
     if (!bookmarkBtnExists) {
       const bookmarkBtnElm = document.createElement("img");
       bookmarkBtnElm.src = chrome.runtime.getURL("assets/bookmark.png");
@@ -42,8 +49,6 @@
       bookmarkBtnElm.title = "Click to bookmark current timestamp";
       bookmarkBtnElm.addEventListener("click", addNewBookmarkVideoHandler);
 
-      ytpLeftControls = document.getElementsByClassName("ytp-left-controls")[0];
-      ytpPlayer = document.getElementsByClassName("video-stream")[0];
       ytpLeftControls.appendChild(bookmarkBtnElm);
     }
   };
@@ -68,8 +73,6 @@
       [currentVideo]: JSON.stringify(currentVideoBookmarksData),
     });
   };
-
-  newVideoLoadded();
 })();
 
 const getTime = (t) => {
