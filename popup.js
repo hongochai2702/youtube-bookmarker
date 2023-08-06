@@ -16,6 +16,7 @@ const addNewBookmark = (bookmarksElement, bookmarkItem) => {
   newBookmarkElm.setAttribute("timestamp", bookmarkItem.time);
 
   setBookmarkAttributes("play", onPlay, controlElement);
+  setBookmarkAttributes("delete", onDelete, controlElement);
 
   newBookmarkElm.appendChild(bookmarkTitleElm);
   newBookmarkElm.appendChild(controlElement);
@@ -47,7 +48,20 @@ const onPlay = async (e) => {
   });
 };
 
-const onDelete = (e) => {};
+const onDelete = async (e) => {
+  const activeTab = await getActiveTabURL();
+  const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+  const bookmarkElmToDelete = document.getElementById(
+    `bookmark-${bookmarkTime}`
+  );
+
+  bookmarkElmToDelete.parentNode.removeChild(bookmarkElmToDelete);
+  chrome.tabs.sendMessage(
+    activeTab.id,
+    { type: "DELETE", value: bookmarkTime },
+    viewBookmarks
+  );
+};
 
 const setBookmarkAttributes = (src, eventListener, controlParentElement) => {
   const controlElement = document.createElement("img");
